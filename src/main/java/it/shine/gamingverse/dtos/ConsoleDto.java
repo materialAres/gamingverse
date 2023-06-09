@@ -1,6 +1,5 @@
 package it.shine.gamingverse.dtos;
 
-import it.shine.gamingverse.annotations.validations.YearConstraint;
 import it.shine.gamingverse.entities.Console;
 import it.shine.gamingverse.entities.ConsolePhoto;
 import jakarta.annotation.Nullable;
@@ -12,7 +11,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Year;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -24,13 +22,13 @@ public class ConsoleDto {
 
     @NotBlank(message = "Name is required")
     @Size(min = 2, max = 32, message = "Console name must be between 2 and 32 characters long")
-    private String name;
+    private String consoleName;
 
     @Nullable
     private String developer;
 
-    @YearConstraint
-    private Year purchaseYear;
+    @Nullable
+    private Year released;
 
     @DecimalMin(value = "0.00", message = "Price must be greater than or equal to 0")
     private BigDecimal price;
@@ -44,9 +42,9 @@ public class ConsoleDto {
 
     public ConsoleDto(Console console) {
         this.id = console.getId();
-        this.name = console.getName();
+        this.consoleName = console.getConsoleName();
         this.developer = console.getDeveloper();
-        this.purchaseYear = console.getPurchaseYear();
+        this.released = console.getReleased();
         this.price = console.getPrice();
         this.photos = getPhotosIdFromConsole(console);
         this.createdAt = console.getCreatedAt();
@@ -71,9 +69,9 @@ public class ConsoleDto {
         ConsoleDto that = (ConsoleDto) o;
         return Objects.equals(
                 getId(), that.getId())
-                && Objects.equals(getName(), that.getName())
+                && Objects.equals(getConsoleName(), that.getConsoleName())
                 && Objects.equals(getDeveloper(), that.getDeveloper())
-                && Objects.equals(getPurchaseYear(), that.getPurchaseYear())
+                && Objects.equals(getReleased(), that.getReleased())
                 && Objects.equals(getPrice(), that.getPrice())
                 && Objects.equals(getCreatedAt(), that.getCreatedAt())
                 && Objects.equals(getUpdatedAt(), that.getUpdatedAt())
@@ -83,9 +81,12 @@ public class ConsoleDto {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), getDeveloper(),
-                getPurchaseYear(), getPrice(), getCreatedAt(),
-                getUpdatedAt(), getPhotos()
+        return Objects.hash(
+                getId(), getConsoleName(),
+                getDeveloper(),
+                getReleased(), getPrice(),
+                getCreatedAt(), getUpdatedAt(),
+                getPhotos()
         );
     }
 }

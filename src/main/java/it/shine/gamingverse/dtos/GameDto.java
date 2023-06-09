@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.Year;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -42,8 +42,7 @@ public class GameDto {
     private String console;
 
     @Nullable
-    // TODO display only date
-    private LocalDateTime released;
+    private Year released;
 
     private LocalDateTime createdAt;
 
@@ -59,8 +58,8 @@ public class GameDto {
         this.price = game.getPrice();
         this.developer = game.getDeveloper();
         this.publisher = game.getPublisher();
-        this.console = game.getConsole();
         this.released = game.getReleased();
+        this.console = game.getConsole();
         this.createdAt = game.getCreatedAt();
         this.updatedAt = game.getUpdatedAt();
         this.photos = getPhotosIdFromGame(game);

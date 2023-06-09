@@ -27,12 +27,13 @@ public interface ConsoleMapper {
         Console console = new Console();
 
         console.setId(consoleDto.getId());
-        console.setName(consoleDto.getName());
-        console.setPurchaseYear(consoleDto.getPurchaseYear());
+        console.setConsoleName(consoleDto.getConsoleName());
         console.setDeveloper(consoleDto.getDeveloper());
         console.setPrice(consoleDto.getPrice());
+        console.setReleased(consoleDto.getReleased());
         console.setCreatedAt(consoleDto.getCreatedAt());
         console.setUpdatedAt(consoleDto.getUpdatedAt());
+        // TODO released
         console.setPhotos(consolePhotoRepository.findByConsoleId(consoleDto.getId()));
 
         return console;

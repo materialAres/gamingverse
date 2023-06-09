@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-/*
+
+import java.time.LocalDateTime;
+
 @Entity
 @Data @NoArgsConstructor @AllArgsConstructor
 public class Order {
@@ -22,9 +24,8 @@ public class Order {
     @ManyToOne
     private Address address;
 
-    private String trackingNumber;
-
-    private String postalService;
+    @OneToOne
+    private PostalService postalService;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -32,4 +33,3 @@ public class Order {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }
- */

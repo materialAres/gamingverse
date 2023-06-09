@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Year;
 
 @Entity
 @Data @NoArgsConstructor @AllArgsConstructor
@@ -25,40 +26,5 @@ public class Product {
     @JsonIgnore
     @Column(name = "product_type", insertable=false, updatable=false)
     private String productType;
-
-    @Column(name = "price")
-    @NotNull
-    private BigDecimal price;
-
-    @Basic
-    @Column(name = "developer")
-    private String developer;
-
-    @Basic
-    @Column(name = "publisher")
-    private String publisher;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    // TODO the seller will be the authenticated user
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Customer seller;
-
-    @PrePersist
-    protected void onCreate() {
-        setCreatedAt(LocalDateTime.now());
-        setUpdatedAt(LocalDateTime.now());
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        setUpdatedAt(LocalDateTime.now());
-    }
 
 }

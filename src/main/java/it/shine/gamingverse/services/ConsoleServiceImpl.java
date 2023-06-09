@@ -76,10 +76,10 @@ public class ConsoleServiceImpl implements ConsoleService {
             throw new ConstraintViolationException(violations);
         }
 
-        console.setName(consoleDto.getName());
+        console.setConsoleName(consoleDto.getConsoleName());
         console.setPrice(consoleDto.getPrice());
         console.setDeveloper(consoleDto.getDeveloper());
-        console.setPurchaseYear(consoleDto.getPurchaseYear());
+        // TODO released
         console.setPhotos(consolePhotoRepository.findByConsoleId(consoleDto.getId()));
 
         consoleRepository.save(console);

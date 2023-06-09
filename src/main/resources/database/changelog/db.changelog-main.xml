@@ -74,4 +74,81 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="addColumn-products-released" author="shine">
+        <addColumn tableName="products">
+            <column name="released" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="deleteColumn-consoles-purchase_year" author="shine">
+        <dropColumn tableName="consoles" columnName="purchase_year"/>
+    </changeSet>
+
+    <changeSet id="deleteColumn-games-released" author="shine">
+        <dropColumn tableName="games" columnName="released"/>
+    </changeSet>
+
+    <changeSet id="addColumn-consoles-released" author="shine">
+        <addColumn tableName="consoles">
+            <column name="released" type="int"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="addColumn-games-released" author="shine">
+        <addColumn tableName="games">
+            <column name="released" type="int"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="modify_products_released_nullable" author="shine">
+        <modifyDataType tableName="products" columnName="released" newDataType="int" nullable="true"/>
+    </changeSet>
+
+    <changeSet id="modify_games_released_nullable" author="shine">
+        <modifyDataType tableName="games" columnName="released" newDataType="int" nullable="true"/>
+    </changeSet>
+
+    <changeSet id="modify_consoles_released_nullable" author="shine">
+        <modifyDataType tableName="consoles" columnName="released" newDataType="int" nullable="true"/>
+    </changeSet>
+
+    <changeSet author="shine" id="delete-columns-from-products-table">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="products"/>
+            <columnExists tableName="products" columnName="price"/>
+            <columnExists tableName="products" columnName="developer"/>
+            <columnExists tableName="products" columnName="publisher"/>
+            <columnExists tableName="products" columnName="released"/>
+            <columnExists tableName="products" columnName="created_at"/>
+            <columnExists tableName="products" columnName="updated_at"/>
+        </preConditions>
+
+        <dropColumn tableName="products" columnName="price"/>
+        <dropColumn tableName="products" columnName="developer"/>
+        <dropColumn tableName="products" columnName="publisher"/>
+        <dropColumn tableName="products" columnName="released"/>
+        <dropColumn tableName="products" columnName="created_at"/>
+        <dropColumn tableName="products" columnName="updated_at"/>
+    </changeSet>
+
+    <changeSet author="shine" id="delete-seller-from-products-table">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="products"/>
+            <columnExists tableName="products" columnName="seller_id"/>
+        </preConditions>
+
+        <dropColumn tableName="products" columnName="seller_id"/>
+    </changeSet>
+
+    <changeSet author="shine" id="delete-publisher-from-consoles-table">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="consoles"/>
+            <columnExists tableName="consoles" columnName="publisher"/>
+        </preConditions>
+
+        <dropColumn tableName="consoles" columnName="publisher"/>
+    </changeSet>
+
 </databaseChangeLog>

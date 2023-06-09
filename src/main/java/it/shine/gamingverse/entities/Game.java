@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -17,7 +18,6 @@ import java.util.Objects;
 @Data @NoArgsConstructor @AllArgsConstructor
 @DiscriminatorValue("game")
 @Table(name = "games", schema = "public", catalog = "gamingverse")
-// @EntityListeners(ProductEntityListener.class)
 public class Game extends Product {
 
     @Basic
@@ -34,13 +34,49 @@ public class Game extends Product {
     @NotNull
     private String console;
 
-    @Basic
-    @Column(name = "released")
-    private LocalDateTime released;
-
     @OneToMany(mappedBy = "game")
     @JsonBackReference
     private List<GamePhoto> photos;
+
+    @Column(name = "price")
+    @NotNull
+    private BigDecimal price;
+
+    @Basic
+    @Column(name = "developer")
+    private String developer;
+
+    @Basic
+    @Column(name = "publisher")
+    private String publisher;
+
+    @Basic
+    @Column(name = "released")
+    private Year released;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    // TODO the seller will be the authenticated user
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Customer seller;
+
+
+    @PrePersist
+    protected void onCreate() {
+        setCreatedAt(LocalDateTime.now());
+        setUpdatedAt(LocalDateTime.now());
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        setUpdatedAt(LocalDateTime.now());
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -53,8 +89,8 @@ public class Game extends Product {
                 && Objects.equals(getPrice(), that.getPrice())
                 && Objects.equals(getDeveloper(), that.getDeveloper())
                 && Objects.equals(getPublisher(), that.getPublisher())
+                && Objects.equals(getReleased(), that.getReleased())
                 && Objects.equals(console, that.console)
-                && Objects.equals(released, that.released)
                 && Objects.equals(getCreatedAt(), that.getCreatedAt())
                 && Objects.equals(getUpdatedAt(), that.getUpdatedAt());
     }
@@ -64,9 +100,8 @@ public class Game extends Product {
         return Objects.hash(
                 getId(), title, genre,
                 getPrice(), getDeveloper(),
-                getPublisher(), console,
-                released, getCreatedAt(),
-                getUpdatedAt());
+                getPublisher(), getReleased(),
+                console, getCreatedAt(), getUpdatedAt());
     }
 
 }

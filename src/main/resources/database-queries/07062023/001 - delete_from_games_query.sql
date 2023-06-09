@@ -15,3 +15,8 @@ ALTER SEQUENCE game_photos_id_seq RESTART WITH 1;
 DELETE FROM console_photos;
 
 ALTER SEQUENCE console_photos_id_seq RESTART WITH 1;
+
+#Products
+DELETE FROM products;
+
+ALTER SEQUENCE products_id_seq RESTART WITH 1;
