@@ -2,7 +2,6 @@ package it.shine.gamingverse.services;
 
 import it.shine.gamingverse.dtos.GameDto;
 import it.shine.gamingverse.entities.Game;
-import it.shine.gamingverse.entities.entitylisteners.ProductEntityListener;
 import it.shine.gamingverse.exceptions.GameNotFoundException;
 import it.shine.gamingverse.mappers.GameMapper;
 import it.shine.gamingverse.repositories.GamePhotoRepository;
@@ -31,9 +30,6 @@ public class GameServiceImpl implements GameService {
 
     @Autowired
     private Validator validator;
-
-    @Autowired
-    ProductEntityListener productEntityListener;
 
     @Override
     public GameDto addGame(GameDto gameDto) {

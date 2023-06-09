@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.Date;
 import java.util.List;
@@ -34,9 +35,9 @@ public class ConsoleDto {
     @DecimalMin(value = "0.00", message = "Price must be greater than or equal to 0")
     private BigDecimal price;
 
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @Nullable
     private List<Integer> photos;
