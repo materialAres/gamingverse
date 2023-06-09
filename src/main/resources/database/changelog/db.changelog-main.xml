@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="addSellerForeignKeyToGames" author="shine">
+        <addColumn tableName="games">
+            <column name="seller_id" type="bigint"/>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="games"
+                                 baseColumnNames="seller_id"
+                                 constraintName="fk_games_seller"
+                                 referencedTableName="customers"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="addSellerForeignKeyToConsoles" author="shine">
+        <addColumn tableName="consoles">
+            <column name="seller_id" type="bigint"/>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="consoles"
+                                 baseColumnNames="seller_id"
+                                 constraintName="fk_consoles_seller"
+                                 referencedTableName="customers"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="addConsoleFieldToGame" author="shine">
+        <addColumn tableName="games">
+            <column name="console" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>
