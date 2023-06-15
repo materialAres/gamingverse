@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PostalServiceEntityRepository extends JpaRepository<PostalServiceInformation, Integer> {
+public interface PostalServiceInformationRepository extends JpaRepository<PostalServiceInformation, Integer> {
 }

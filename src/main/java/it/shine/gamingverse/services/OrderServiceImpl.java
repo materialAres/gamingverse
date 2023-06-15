@@ -37,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
     private AddressRepository addressRepository;
 
     @Autowired
-    private PostalServiceEntityRepository postalServiceRepository;
+    private PostalServiceInformationRepository postalServiceRepository;
 
     @Override
     public OrderDto addOrder(OrderDto orderDto) {

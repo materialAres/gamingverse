@@ -2,6 +2,7 @@ package it.shine.gamingverse.controllers;
 
 import it.shine.gamingverse.controllers.utils.CheckControllerError;
 import it.shine.gamingverse.dtos.ConsoleDto;
+import it.shine.gamingverse.exceptions.ConsoleNotFoundException;
 import it.shine.gamingverse.services.ConsoleServiceImpl;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -24,13 +25,11 @@ public class ConsoleController {
     @PostMapping("/add")
     public ResponseEntity<?> addConsole(@RequestBody ConsoleDto consoleDto) {
         try {
-
             return ResponseEntity.status(HttpStatus.CREATED).body(consoleService.addConsole(consoleDto));
         } catch (ConstraintViolationException e) {
             Map<String, String> errors = CheckControllerError.checkControllerErrors(e);
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -41,8 +40,8 @@ public class ConsoleController {
     public ResponseEntity<ConsoleDto> getConsoleById(@PathVariable("id") Integer id) {
         try {
             return ResponseEntity.ok(consoleService.getConsoleById(id));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (ConsoleNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 

@@ -50,9 +50,10 @@ public class ConsoleServiceImpl implements ConsoleService {
     }
 
     @Override
-    public ConsoleDto getConsoleById(Integer id) throws Exception {
+    public ConsoleDto getConsoleById(Integer id) throws ConsoleNotFoundException {
         Console console = consoleRepository.findById(id)
                 .orElseThrow(ConsoleNotFoundException::new);
+
         return consoleMapper.consoleToConsoleDto(console, consolePhotoRepository);
     }
 
