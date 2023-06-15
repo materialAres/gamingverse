@@ -27,4 +27,7 @@ public class Product {
     @Column(name = "product_type", insertable=false, updatable=false)
     private String productType;
 
+    @Column(name = "price")
+    private BigDecimal price;
+
 }

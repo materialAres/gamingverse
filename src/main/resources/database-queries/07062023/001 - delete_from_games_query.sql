@@ -20,3 +20,8 @@ ALTER SEQUENCE console_photos_id_seq RESTART WITH 1;
 DELETE FROM products;
 
 ALTER SEQUENCE products_id_seq RESTART WITH 1;
+
+#Orders
+DELETE FROM orders;
+
+ALTER SEQUENCE orders_id_seq RESTART WITH 1;

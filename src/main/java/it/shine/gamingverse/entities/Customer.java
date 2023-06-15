@@ -1,6 +1,7 @@
 package it.shine.gamingverse.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import it.shine.gamingverse.security.user.entities.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,16 +11,19 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.Set;
 
-@Data @AllArgsConstructor @NoArgsConstructor
 @Entity
+@Data @AllArgsConstructor @NoArgsConstructor
+@Table(name = "customers", schema = "public", catalog = "gamingverse")
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "name")
     private String name;
 
+    @Column(name = "surname")
     private String surname;
 
     @OneToMany(mappedBy = "customer")
@@ -27,6 +31,7 @@ public class Customer {
     private Set<Address> addresses;
 
     @OneToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "seller")
@@ -38,5 +43,9 @@ public class Customer {
      */
     @OneToMany(mappedBy = "seller")
     private List<Console> consolesForSale;
+
+    @OneToMany(mappedBy = "customer")
+    @JsonManagedReference
+    private List<Order> orders;
 
 }

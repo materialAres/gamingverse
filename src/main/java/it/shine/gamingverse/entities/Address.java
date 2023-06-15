@@ -5,26 +5,37 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data @NoArgsConstructor @AllArgsConstructor
 @Entity
+@Data @NoArgsConstructor @AllArgsConstructor
+@Table(name = "addresses", schema = "public", catalog = "gamingverse")
 public class Address {
 
     @Id
-    @SequenceGenerator(
-            name = "address_id_sequence",
-            sequenceName = "address_id_sequence"
-    )
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY,
-            generator = "customer_id_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
+    @Column(name = "street")
     private String street;
+
+    @Column(name = "number")
     private String number;
-    private String country;
+
+    @Column(name = "city")
     private String city;
+
+    @Column(name = "state")
+    private String state;
+
+    @Column(name = "country")
+    private String country;
+
+    @Column(name = "postal_code")
     private String postalCode;
+
+    @Column(name = "additional_information")
     private String additionalInformation;
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id")
     private Customer customer;

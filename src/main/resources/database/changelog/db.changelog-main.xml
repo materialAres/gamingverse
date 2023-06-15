@@ -151,4 +151,142 @@
         <dropColumn tableName="consoles" columnName="publisher"/>
     </changeSet>
 
+    <changeSet id="create-table-addresses" author="shine">
+        <createTable tableName="addresses">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="street" type="VARCHAR(255)"/>
+            <column name="number" type="VARCHAR(255)"/>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="state" type="VARCHAR(255)"/>
+            <column name="country" type="VARCHAR(255)"/>
+            <column name="postal_code" type="VARCHAR(255)"/>
+            <column name="additional_information" type="VARCHAR(255)"/>
+            <column name="customer_id" type="INT"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="addresses"
+                                 constraintName="fk_customer" referencedColumnNames="id"
+                                 referencedTableName="customers" />
+    </changeSet>
+
+    <changeSet id="createPostalservicesTable" author="shine">
+        <createTable tableName="postal_services">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="tracking_number" type="VARCHAR(255)"/>
+            <column name="tracking_link" type="VARCHAR(255)"/>
+            <column name="estimated_delivery" type="DATE"/>
+            <column name="service_type" type="VARCHAR(255)"/>
+            <column name="delivery_status" type="VARCHAR(255)"/>
+            <column name="additional_information" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="shine" id="create-orders-table">
+        <createTable tableName="orders">
+            <column name="id" type="INTEGER">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total" type="DOUBLE"/>
+            <column name="shipping_address_id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="billing_address_id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="postal_service_id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_notes" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="orders" baseColumnNames="customer_id"
+                                 constraintName="fk_orders_customer"
+                                 referencedTableName="customers" referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="orders" baseColumnNames="product_id"
+                                 constraintName="fk_orders_product"
+                                 referencedTableName="products" referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="orders" baseColumnNames="shipping_address_id"
+                                 constraintName="fk_orders_shipping_address"
+                                 referencedTableName="addresses" referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="orders" baseColumnNames="billing_address_id"
+                                 constraintName="fk_orders_billing_address"
+                                 referencedTableName="addresses" referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="orders" baseColumnNames="postal_service_id"
+                                 constraintName="fk_orders_postal_service"
+                                 referencedTableName="postal_services" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="addColumnsToCustomersTable" author="shine">
+        <addColumn tableName="customers">
+            <column name="addresses" type="INTEGER" />
+            <column name="games_for_sale" type="INTEGER" />
+            <column name="consoles_for_sale" type="INTEGER" />
+            <column name="orders" type="INTEGER" />
+        </addColumn>
+        <addForeignKeyConstraint baseColumnNames="addresses" baseTableName="customers"
+                                 constraintName="fk_customers_addresses" referencedColumnNames="id"
+                                 referencedTableName="addresses" />
+        <addForeignKeyConstraint baseColumnNames="games_for_sale" baseTableName="customers"
+                                 constraintName="fk_customers_games" referencedColumnNames="id"
+                                 referencedTableName="games" />
+        <addForeignKeyConstraint baseColumnNames="consoles_for_sale" baseTableName="customers"
+                                 constraintName="fk_customers_consoles" referencedColumnNames="id"
+                                 referencedTableName="consoles" />
+        <addForeignKeyConstraint baseColumnNames="orders" baseTableName="customers"
+                                 constraintName="fk_customers_orders" referencedColumnNames="id"
+                                 referencedTableName="orders" />
+    </changeSet>
+
+    <changeSet id="addCustomerIdToGamesTable" author="shine">
+        <addColumn tableName="games">
+            <column name="customer_id" type="INT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="games" baseColumnNames="customer_id"
+                                 constraintName="fk_customer_id_games" referencedTableName="customers"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="removeAddressesColumnFromCustomersTable" author="shine">
+        <dropColumn tableName="customers" columnName="addresses"/>
+    </changeSet>
+
+    <changeSet id="removeConsolesAndGamesForSaleColumnsFromCustomersTable" author="shine">
+        <dropColumn tableName="customers" columnName="consoles_for_sale"/>
+        <dropColumn tableName="customers" columnName="games_for_sale"/>
+        <dropColumn tableName="customers" columnName="orders"/>
+    </changeSet>
+
+    <changeSet id="add-price-column-to-products" author="shine">
+        <addColumn tableName="products">
+            <column name="price" type="DOUBLE PRECISION"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="delete-price-column-from-games" author="shine">
+        <dropColumn tableName="games" columnName="price"/>
+    </changeSet>
+
+    <changeSet id="delete-price-column-from-consoles" author="shine">
+        <dropColumn tableName="consoles" columnName="price"/>
+    </changeSet>
+
 </databaseChangeLog>

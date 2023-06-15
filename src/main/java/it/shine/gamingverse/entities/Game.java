@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Year;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,10 +37,6 @@ public class Game extends Product {
     @JsonBackReference
     private List<GamePhoto> photos;
 
-    @Column(name = "price")
-    @NotNull
-    private BigDecimal price;
-
     @Basic
     @Column(name = "developer")
     private String developer;
@@ -64,6 +59,7 @@ public class Game extends Product {
 
     // TODO the seller will be the authenticated user
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
     private Customer seller;
 
 

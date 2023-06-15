@@ -24,10 +24,6 @@ public class Console extends Product {
     @NotNull
     private String consoleName;
 
-    @Column(name = "price")
-    @NotNull
-    private BigDecimal price;
-
     @Basic
     @Column(name = "developer")
     private String developer;
