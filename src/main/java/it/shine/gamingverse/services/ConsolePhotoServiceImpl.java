@@ -1,9 +1,10 @@
 package it.shine.gamingverse.services;
 
-import it.shine.gamingverse.dtos.ConsoleDto;
 import it.shine.gamingverse.dtos.ConsolePhotoDto;
 import it.shine.gamingverse.entities.ConsolePhoto;
-import it.shine.gamingverse.exceptions.ConsolePhotoNotFoundException;
+import it.shine.gamingverse.exceptions.listempty.ConsolePhotoListEmptyException;
+import it.shine.gamingverse.exceptions.isnull.ConsolePhotoDtoNullException;
+import it.shine.gamingverse.exceptions.notfound.ConsolePhotoNotFoundException;
 import it.shine.gamingverse.mappers.ConsolePhotoMapper;
 import it.shine.gamingverse.repositories.ConsolePhotoRepository;
 import jakarta.persistence.EntityManager;
@@ -13,6 +14,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -34,7 +36,11 @@ public class ConsolePhotoServiceImpl implements ConsolePhotoService {
     private Validator validator;
 
     @Override
-    public ConsolePhotoDto addConsolePhoto(ConsolePhotoDto consolePhotoDto) throws Exception {
+    public ConsolePhotoDto addConsolePhoto(ConsolePhotoDto consolePhotoDto) throws ConstraintViolationException, ConsolePhotoDtoNullException {
+        if (ObjectUtils.isEmpty(consolePhotoDto)) {
+            throw new ConsolePhotoDtoNullException();
+        }
+
         ConsolePhoto consolePhoto = consolePhotoMapper.consolePhotoDtoToConsolePhoto(consolePhotoDto, entityManager);
 
         Set<ConstraintViolation<ConsolePhotoDto>> violations = validator.validate(consolePhotoDto);
@@ -49,7 +55,7 @@ public class ConsolePhotoServiceImpl implements ConsolePhotoService {
     }
 
     @Override
-    public ConsolePhotoDto getConsolePhotoById(Integer id) throws Exception {
+    public ConsolePhotoDto getConsolePhotoById(Integer id) throws ConsolePhotoNotFoundException {
         ConsolePhoto consolePhoto = consolePhotoRepository.findById(id)
                 .orElseThrow(ConsolePhotoNotFoundException::new);
 
@@ -57,8 +63,12 @@ public class ConsolePhotoServiceImpl implements ConsolePhotoService {
     }
 
     @Override
-    public List<ConsolePhotoDto> getAllConsolePhotos() {
+    public List<ConsolePhotoDto> getAllConsolePhotos() throws ConsolePhotoListEmptyException {
         List<ConsolePhoto> consolePhotos = consolePhotoRepository.findAll();
+
+        if (consolePhotos.isEmpty()) {
+            throw new ConsolePhotoListEmptyException();
+        }
 
         return consolePhotos
                 .stream()
@@ -67,10 +77,11 @@ public class ConsolePhotoServiceImpl implements ConsolePhotoService {
     }
 
     @Override
-    public ConsolePhotoDto updateConsolePhoto(ConsolePhotoDto consolePhotoDto) throws Exception {
-        ConsolePhoto existingConsolePhoto = consolePhotoRepository
-                .findById(consolePhotoDto.getId())
-                .orElseThrow(ConsolePhotoNotFoundException::new);
+    public ConsolePhotoDto updateConsolePhoto(ConsolePhotoDto consolePhotoDto)
+                            throws ConsolePhotoDtoNullException {
+        if (ObjectUtils.isEmpty(consolePhotoDto)) {
+            throw new ConsolePhotoDtoNullException();
+        }
 
         Set<ConstraintViolation<ConsolePhotoDto>> violations = validator.validate(consolePhotoDto);
 
@@ -80,15 +91,13 @@ public class ConsolePhotoServiceImpl implements ConsolePhotoService {
 
         ConsolePhoto consolePhoto = consolePhotoMapper.consolePhotoDtoToConsolePhoto(consolePhotoDto, entityManager);
 
-        consolePhoto.setId(existingConsolePhoto.getId());
-
-        consolePhoto = consolePhotoRepository.save(consolePhoto);
+        consolePhotoRepository.save(consolePhoto);
 
         return consolePhotoMapper.consolePhotoToConsolePhotoDto(consolePhoto);
     }
 
     @Override
-    public void deleteConsolePhoto(Integer id) throws Exception {
+    public void deleteConsolePhoto(Integer id) throws ConsolePhotoNotFoundException {
         if (!consolePhotoRepository.existsById(id)) {
             throw new ConsolePhotoNotFoundException();
         }

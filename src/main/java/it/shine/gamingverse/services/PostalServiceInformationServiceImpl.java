@@ -2,7 +2,9 @@ package it.shine.gamingverse.services;
 
 import it.shine.gamingverse.dtos.PostalServiceInformationDto;
 import it.shine.gamingverse.entities.PostalServiceInformation;
-import it.shine.gamingverse.exceptions.PostalServiceInformationNotFoundException;
+import it.shine.gamingverse.exceptions.listempty.PostalServiceInformationListEmptyException;
+import it.shine.gamingverse.exceptions.isnull.PostalServiceInformationDtoNullException;
+import it.shine.gamingverse.exceptions.notfound.PostalServiceInformationNotFoundException;
 import it.shine.gamingverse.mappers.PostalServiceInformationMapper;
 import it.shine.gamingverse.repositories.PostalServiceInformationRepository;
 import jakarta.validation.ConstraintViolation;
@@ -10,6 +12,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +31,14 @@ public class PostalServiceInformationServiceImpl implements PostalServiceInforma
     private Validator validator;
 
     @Override
-    public PostalServiceInformationDto addPostalServiceInformation(PostalServiceInformationDto postalServiceInformationDto) {
+    public PostalServiceInformationDto addPostalServiceInformation(
+            PostalServiceInformationDto postalServiceInformationDto)
+            throws PostalServiceInformationDtoNullException
+    {
+        if (ObjectUtils.isEmpty(postalServiceInformationDto)) {
+            throw new PostalServiceInformationDtoNullException();
+        }
+
         Set<ConstraintViolation<PostalServiceInformationDto>> violations = validator.validate(postalServiceInformationDto);
 
         if (!violations.isEmpty()) {
@@ -51,34 +61,40 @@ public class PostalServiceInformationServiceImpl implements PostalServiceInforma
     }
 
     @Override
-    public List<PostalServiceInformationDto> getAllPostalServiceInformation() {
-        List<PostalServiceInformationDto> postalServiceInformations = new ArrayList<>();
+    public List<PostalServiceInformationDto> getAllPostalServiceInformation() throws PostalServiceInformationListEmptyException {
+        List<PostalServiceInformation> postalServiceInformationList = postalServiceInformationRepository.findAll();
 
-        for (PostalServiceInformation postalServiceInformation : postalServiceInformationRepository.findAll()) {
-            postalServiceInformations.add(postalServiceInformationMapper.postalServiceInformationToPostalServiceInformationDto(postalServiceInformation));
+        if (postalServiceInformationList.isEmpty()) {
+            throw new PostalServiceInformationListEmptyException();
         }
 
-        return postalServiceInformations;
+        List<PostalServiceInformationDto> postalServiceInformationDtoList = new ArrayList<>();
+
+        for (PostalServiceInformation postalServiceInformation : postalServiceInformationList) {
+            postalServiceInformationDtoList.add(postalServiceInformationMapper.postalServiceInformationToPostalServiceInformationDto(postalServiceInformation));
+        }
+
+        return postalServiceInformationDtoList;
     }
 
     @Override
-    public PostalServiceInformationDto updatePostalServiceInformation(Integer id, PostalServiceInformationDto postalServiceInformationDto) throws PostalServiceInformationNotFoundException {
-        Set<ConstraintViolation<PostalServiceInformationDto>> violations = validator.validate(postalServiceInformationDto);
+    public PostalServiceInformationDto updatePostalServiceInformation(
+            Integer id, PostalServiceInformationDto postalServiceInformationDto)
+            throws PostalServiceInformationDtoNullException {
+        if (ObjectUtils.isEmpty(postalServiceInformationDto)) {
+            throw new PostalServiceInformationDtoNullException();
+        }
+
+        Set<ConstraintViolation<PostalServiceInformationDto>> violations = validator
+                                                                            .validate(postalServiceInformationDto);
 
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
 
-        PostalServiceInformation postalServiceInformation = postalServiceInformationRepository.findById(id)
-                .orElseThrow(PostalServiceInformationNotFoundException::new);
-
-        postalServiceInformation.setPostalServiceCompany(postalServiceInformationDto.getPostalServiceCompany());
-        postalServiceInformation.setTrackingNumber(postalServiceInformationDto.getTrackingNumber());
-        postalServiceInformation.setTrackingLink(postalServiceInformationDto.getTrackingLink());
-        postalServiceInformation.setEstimatedDelivery(postalServiceInformationDto.getEstimatedDelivery());
-        postalServiceInformation.setServiceType(postalServiceInformationDto.getServiceType());
-        postalServiceInformation.setDeliveryStatus(postalServiceInformationDto.getDeliveryStatus());
-        postalServiceInformation.setAdditionalInformation(postalServiceInformationDto.getAdditionalInformation());
+        postalServiceInformationDto.setId(id);
+        PostalServiceInformation postalServiceInformation = postalServiceInformationMapper
+                        .postalServiceInformationDtoToPostalServiceInformation(postalServiceInformationDto);
 
         postalServiceInformationRepository.save(postalServiceInformation);
 

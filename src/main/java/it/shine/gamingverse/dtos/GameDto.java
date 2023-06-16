@@ -1,5 +1,6 @@
 package it.shine.gamingverse.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.shine.gamingverse.entities.Game;
 import it.shine.gamingverse.entities.GamePhoto;
 import jakarta.annotation.Nullable;
@@ -44,8 +45,10 @@ public class GameDto {
     @Nullable
     private Year released;
 
+    @JsonIgnore
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     private LocalDateTime updatedAt;
 
     @Nullable

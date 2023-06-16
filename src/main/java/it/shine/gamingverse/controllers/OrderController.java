@@ -2,8 +2,9 @@ package it.shine.gamingverse.controllers;
 
 import it.shine.gamingverse.controllers.utils.CheckControllerError;
 import it.shine.gamingverse.dtos.OrderDto;
-import it.shine.gamingverse.entities.Order;
-import it.shine.gamingverse.exceptions.OrderNotFoundException;
+import it.shine.gamingverse.exceptions.listempty.OrderListEmptyException;
+import it.shine.gamingverse.exceptions.isnull.OrderDtoNullException;
+import it.shine.gamingverse.exceptions.notfound.OrderNotFoundException;
 import it.shine.gamingverse.services.OrderServiceImpl;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class OrderController {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
 
-        } catch (Exception e) {
+        } catch (OrderDtoNullException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -45,9 +46,6 @@ public class OrderController {
         } catch (OrderNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -55,10 +53,8 @@ public class OrderController {
     public ResponseEntity<List<OrderDto>> getAllOrders() {
         try {
             return ResponseEntity.ok(orderService.getAllOrders());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (OrderListEmptyException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
@@ -72,8 +68,9 @@ public class OrderController {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
 
-        } catch (OrderNotFoundException e) {
+        } catch (OrderDtoNullException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
         }
     }
 
@@ -84,7 +81,7 @@ public class OrderController {
 
             return ResponseEntity.noContent().build();
         } catch (OrderNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 

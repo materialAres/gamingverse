@@ -1,8 +1,8 @@
 package it.shine.gamingverse.services;
 
 import it.shine.gamingverse.dtos.AddressDto;
-import it.shine.gamingverse.exceptions.AddressDtoNullException;
-import it.shine.gamingverse.exceptions.AddressListEmptyException;
+import it.shine.gamingverse.exceptions.isnull.AddressDtoNullException;
+import it.shine.gamingverse.exceptions.listempty.AddressListEmptyException;
 
 import java.util.List;
 

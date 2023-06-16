@@ -1,4 +1,4 @@
-package it.shine.gamingverse.exceptions;
+package it.shine.gamingverse.exceptions.isnull;
 
 public class AddressDtoNullException extends Exception {
 

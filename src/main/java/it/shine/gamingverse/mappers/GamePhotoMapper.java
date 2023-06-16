@@ -26,7 +26,7 @@ public interface GamePhotoMapper {
     };
 
     @Named("gamePhotoDtoToGamePhoto")
-    default GamePhoto gamePhotoDtoToGamePhoto(GamePhotoDto gamePhotoDto, EntityManager entityManager) throws Exception {
+    default GamePhoto gamePhotoDtoToGamePhoto(GamePhotoDto gamePhotoDto, EntityManager entityManager) {
         GamePhoto gamePhoto = new GamePhoto();
 
         gamePhoto.setId(gamePhotoDto.getId());

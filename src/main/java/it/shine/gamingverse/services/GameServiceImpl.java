@@ -1,8 +1,13 @@
 package it.shine.gamingverse.services;
 
 import it.shine.gamingverse.dtos.GameDto;
+import it.shine.gamingverse.dtos.GamePhotoDto;
 import it.shine.gamingverse.entities.Game;
-import it.shine.gamingverse.exceptions.GameNotFoundException;
+import it.shine.gamingverse.entities.GamePhoto;
+import it.shine.gamingverse.exceptions.isnull.GamePhotoDtoNullException;
+import it.shine.gamingverse.exceptions.listempty.GameListEmptyException;
+import it.shine.gamingverse.exceptions.isnull.GameDtoNullException;
+import it.shine.gamingverse.exceptions.notfound.GameNotFoundException;
 import it.shine.gamingverse.mappers.GameMapper;
 import it.shine.gamingverse.repositories.GamePhotoRepository;
 import it.shine.gamingverse.repositories.GameRepository;
@@ -11,6 +16,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +38,11 @@ public class GameServiceImpl implements GameService {
     private Validator validator;
 
     @Override
-    public GameDto addGame(GameDto gameDto) {
+    public GameDto addGame(GameDto gameDto) throws GameDtoNullException {
+        if (ObjectUtils.isEmpty(gameDto)) {
+            throw new GameDtoNullException();
+        }
+
         Set<ConstraintViolation<GameDto>> violations = validator.validate(gameDto);
 
         if (!violations.isEmpty()) {
@@ -53,40 +63,44 @@ public class GameServiceImpl implements GameService {
         return gameMapper.gameToGameDto(game, gamePhotoRepository);
     }
 
-    public List<GameDto> getAllGames() {
-        List<GameDto> games = new ArrayList<>();
+    @Override
+    public List<GameDto> getAllGames() throws GameListEmptyException {
+        List<Game> games = gameRepository.findAll();
 
-        for (Game game : gameRepository.findAll()) {
-            games.add(gameMapper.gameToGameDto(game, gamePhotoRepository));
+        if (games.isEmpty()) {
+            throw new GameListEmptyException();
         }
 
-        return games;
+        List<GameDto> gamesDto = new ArrayList<>();
+
+        for (Game game : games) {
+            gamesDto.add(gameMapper.gameToGameDto(game, gamePhotoRepository)); // TODO da rivedere
+        }
+
+        return gamesDto;
     }
 
-    public GameDto updateGame(Integer id, GameDto gameDto) throws GameNotFoundException {
+    @Override
+    public GameDto updateGame(GameDto gameDto, Integer id) throws GameDtoNullException {
+        if (ObjectUtils.isEmpty(gameDto)) {
+            throw new GameDtoNullException();
+        }
+
         Set<ConstraintViolation<GameDto>> violations = validator.validate(gameDto);
 
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
 
-        Game game = gameRepository.findById(id)
-                .orElseThrow(GameNotFoundException::new);
-
-        game.setTitle(gameDto.getTitle());
-        game.setGenre(gameDto.getGenre());
-        game.setPrice(gameDto.getPrice());
-        game.setDeveloper(gameDto.getDeveloper());
-        game.setPublisher(gameDto.getPublisher());
-        game.setReleased(gameDto.getReleased());
-        game.setPhotos(gamePhotoRepository.findByGameId(gameDto.getId()));
-        game.setConsole(gameDto.getConsole());
+        gameDto.setId(id);
+        Game game = gameMapper.gameDtoToGame(gameDto, gamePhotoRepository);
 
         gameRepository.save(game);
 
         return gameMapper.gameToGameDto(game, gamePhotoRepository);
     }
 
+    @Override
     public void deleteGame(Integer id) throws GameNotFoundException {
         Game game = gameRepository.findById(id)
                 .orElseThrow(GameNotFoundException::new);

@@ -26,7 +26,7 @@ public interface ConsolePhotoMapper {
     };
 
     @Named("consolePhotoDtoToConsolePhoto")
-    default ConsolePhoto consolePhotoDtoToConsolePhoto(ConsolePhotoDto consolePhotoDto, EntityManager entityManager) throws Exception {
+    default ConsolePhoto consolePhotoDtoToConsolePhoto(ConsolePhotoDto consolePhotoDto, EntityManager entityManager) {
         ConsolePhoto consolePhoto = new ConsolePhoto();
 
         consolePhoto.setId(consolePhotoDto.getId());

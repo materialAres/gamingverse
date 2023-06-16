@@ -1,13 +1,19 @@
 package it.shine.gamingverse.controllers;
 
+import it.shine.gamingverse.controllers.utils.CheckControllerError;
 import it.shine.gamingverse.dtos.GamePhotoDto;
+import it.shine.gamingverse.exceptions.isnull.GamePhotoDtoNullException;
+import it.shine.gamingverse.exceptions.listempty.GamePhotoListEmptyException;
+import it.shine.gamingverse.exceptions.notfound.GamePhotoNotFoundException;
 import it.shine.gamingverse.services.GamePhotoServiceImpl;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/game-photos")
@@ -17,11 +23,15 @@ public class GamePhotoController {
     private GamePhotoServiceImpl gamePhotoService;
 
     @PostMapping("/create")
-    public ResponseEntity<GamePhotoDto> addGamePhoto(@RequestBody GamePhotoDto gamePhotoDto) {
+    public ResponseEntity<?> addGamePhoto(@RequestBody GamePhotoDto gamePhotoDto) {
         try {
             GamePhotoDto savedGamePhotoDto = gamePhotoService.addGamePhoto(gamePhotoDto);
 
             return new ResponseEntity<>(savedGamePhotoDto, HttpStatus.CREATED);
+        } catch (ConstraintViolationException e) {
+            Map<String, String> errors = CheckControllerError.checkControllerErrors(e);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -29,21 +39,23 @@ public class GamePhotoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GamePhotoDto> getGamePhoto(@PathVariable("id") Integer id) {
+    public ResponseEntity<GamePhotoDto> getGamePhotoById(@PathVariable("id") Integer id) {
         try {
             GamePhotoDto gamePhotoDto = gamePhotoService.getGamePhotoById(id);
 
             return new ResponseEntity<>(gamePhotoDto, HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (GamePhotoNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping
     public ResponseEntity<List<GamePhotoDto>> getAllGamePhotos() {
-        List<GamePhotoDto> gamePhotosDto = gamePhotoService.getAllGamePhotos();
-
-        return new ResponseEntity<>(gamePhotosDto, HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(gamePhotoService.getAllGamePhotos(), HttpStatus.OK);
+        } catch (GamePhotoListEmptyException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @PutMapping("/{id}")
@@ -55,8 +67,8 @@ public class GamePhotoController {
             GamePhotoDto updatedGamePhotoDto = gamePhotoService.updateGamePhoto(gamePhotoDto);
 
             return new ResponseEntity<>(updatedGamePhotoDto, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (GamePhotoDtoNullException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -66,7 +78,7 @@ public class GamePhotoController {
             gamePhotoService.deleteGamePhoto(id);
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
+        } catch (GamePhotoNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

@@ -1,13 +1,19 @@
 package it.shine.gamingverse.controllers;
 
+import it.shine.gamingverse.controllers.utils.CheckControllerError;
 import it.shine.gamingverse.dtos.ConsolePhotoDto;
+import it.shine.gamingverse.exceptions.listempty.ConsolePhotoListEmptyException;
+import it.shine.gamingverse.exceptions.isnull.ConsolePhotoDtoNullException;
+import it.shine.gamingverse.exceptions.notfound.ConsolePhotoNotFoundException;
 import it.shine.gamingverse.services.ConsolePhotoServiceImpl;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/console-photos")
@@ -17,13 +23,16 @@ public class ConsolePhotoController {
     private ConsolePhotoServiceImpl consolePhotoService;
 
     @PostMapping("/create")
-    public ResponseEntity<ConsolePhotoDto> addConsolePhoto(@RequestBody ConsolePhotoDto consolePhotoDto) {
+    public ResponseEntity<?> addConsolePhoto(@RequestBody ConsolePhotoDto consolePhotoDto) {
         try {
             ConsolePhotoDto savedConsolePhotoDto = consolePhotoService.addConsolePhoto(consolePhotoDto);
 
             return new ResponseEntity<>(savedConsolePhotoDto, HttpStatus.CREATED);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (ConstraintViolationException e) {
+            Map<String, String> errors = CheckControllerError.checkControllerErrors(e);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        } catch (ConsolePhotoDtoNullException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -34,16 +43,18 @@ public class ConsolePhotoController {
             ConsolePhotoDto consolePhotoDto = consolePhotoService.getConsolePhotoById(id);
 
             return new ResponseEntity<>(consolePhotoDto, HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (ConsolePhotoNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping
     public ResponseEntity<List<ConsolePhotoDto>> getAllConsolePhotos() {
-        List<ConsolePhotoDto> consolePhotosDto = consolePhotoService.getAllConsolePhotos();
-
-        return new ResponseEntity<>(consolePhotosDto, HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(consolePhotoService.getAllConsolePhotos(), HttpStatus.OK);
+        } catch (ConsolePhotoListEmptyException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping("/{id}")
@@ -51,12 +62,11 @@ public class ConsolePhotoController {
                                                         @RequestBody ConsolePhotoDto consolePhotoDto) {
         try {
             consolePhotoDto.setId(id);
-
             ConsolePhotoDto updatedConsolePhotoDto = consolePhotoService.updateConsolePhoto(consolePhotoDto);
 
             return new ResponseEntity<>(updatedConsolePhotoDto, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (ConsolePhotoDtoNullException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -66,7 +76,7 @@ public class ConsolePhotoController {
             consolePhotoService.deleteConsolePhoto(id);
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
+        } catch (ConsolePhotoNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

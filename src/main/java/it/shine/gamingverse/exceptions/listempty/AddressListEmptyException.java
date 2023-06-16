@@ -1,8 +1,9 @@
-package it.shine.gamingverse.exceptions;
+package it.shine.gamingverse.exceptions.listempty;
 
 public class AddressListEmptyException extends Exception {
 
     public AddressListEmptyException() {
-        super("Address list is null");
+        super("Address list is empty");
     }
+
 }

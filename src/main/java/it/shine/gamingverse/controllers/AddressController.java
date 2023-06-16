@@ -2,10 +2,10 @@ package it.shine.gamingverse.controllers;
 
 import it.shine.gamingverse.controllers.utils.CheckControllerError;
 import it.shine.gamingverse.dtos.AddressDto;
-import it.shine.gamingverse.exceptions.AddressDtoNullException;
-import it.shine.gamingverse.exceptions.AddressListEmptyException;
-import it.shine.gamingverse.exceptions.AddressNotFoundException;
-import it.shine.gamingverse.exceptions.CustomerNotFoundException;
+import it.shine.gamingverse.exceptions.isnull.AddressDtoNullException;
+import it.shine.gamingverse.exceptions.listempty.AddressListEmptyException;
+import it.shine.gamingverse.exceptions.notfound.AddressNotFoundException;
+import it.shine.gamingverse.exceptions.notfound.CustomerNotFoundException;
 import it.shine.gamingverse.services.AddressServiceImpl;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class AddressController {
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(addressService.addAddress(addressDto));
         } catch (AddressDtoNullException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (ConstraintViolationException e) {
             Map<String, String> errors = CheckControllerError.checkControllerErrors(e);
 
@@ -66,6 +66,8 @@ public class AddressController {
 
         } catch (AddressNotFoundException | CustomerNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (AddressDtoNullException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

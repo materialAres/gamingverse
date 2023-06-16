@@ -2,7 +2,9 @@ package it.shine.gamingverse.services;
 
 import it.shine.gamingverse.dtos.OrderDto;
 import it.shine.gamingverse.entities.Order;
-import it.shine.gamingverse.exceptions.OrderNotFoundException;
+import it.shine.gamingverse.exceptions.listempty.OrderListEmptyException;
+import it.shine.gamingverse.exceptions.isnull.OrderDtoNullException;
+import it.shine.gamingverse.exceptions.notfound.OrderNotFoundException;
 import it.shine.gamingverse.mappers.OrderMapper;
 import it.shine.gamingverse.repositories.*;
 import jakarta.validation.ConstraintViolation;
@@ -10,6 +12,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +43,11 @@ public class OrderServiceImpl implements OrderService {
     private PostalServiceInformationRepository postalServiceRepository;
 
     @Override
-    public OrderDto addOrder(OrderDto orderDto) {
+    public OrderDto addOrder(OrderDto orderDto) throws OrderDtoNullException {
+        if (ObjectUtils.isEmpty(orderDto)) {
+            throw new OrderDtoNullException();
+        }
+
         Set<ConstraintViolation<OrderDto>> violations = validator.validate(orderDto);
 
         if (!violations.isEmpty()) {
@@ -64,35 +71,37 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> getAllOrders() {
-        List<OrderDto> orders = new ArrayList<>();
+    public List<OrderDto> getAllOrders() throws OrderListEmptyException {
+        List<Order> orders = orderRepository.findAll();
 
-        for (Order order : orderRepository.findAll()) {
-            orders.add(orderMapper.orderToOrderDto(order));
+        if (orders.isEmpty()) {
+            throw new OrderListEmptyException();
         }
 
-        return orders;
+        List<OrderDto> ordersDto = new ArrayList<>();
+
+        for (Order order : orders) {
+            ordersDto.add(orderMapper.orderToOrderDto(order));
+        }
+
+        return ordersDto;
     }
 
+
     @Override
-    public OrderDto updateOrder(Integer id, OrderDto orderDto) throws OrderNotFoundException {
+    public OrderDto updateOrder(Integer id, OrderDto orderDto) throws OrderDtoNullException {
+        if (ObjectUtils.isEmpty(orderDto)) {
+            throw new OrderDtoNullException();
+        }
+
         Set<ConstraintViolation<OrderDto>> violations = validator.validate(orderDto);
 
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
 
-        Order order = orderRepository.findById(id)
-                .orElseThrow(OrderNotFoundException::new);
-
-        order.setCustomer(customerRepository.findById(orderDto.getCustomerId()).get());
-        order.setProduct(productRepository.findById(orderDto.getProductId()).get());
-        order.setTotal(orderDto.getTotal());
-        order.setShippingAddress(addressRepository.findById(orderDto.getShippingAddressId()).get());
-        order.setBillingAddress(addressRepository.findById(orderDto.getBillingAddressId()).get());
-        order.setPostalService(postalServiceRepository.findById(orderDto.getPostalServiceId()).get());
-        order.setOrderNotes(orderDto.getOrderNotes());
-        order.setUpdatedAt(orderDto.getUpdatedAt());
+        orderDto.setId(id);
+        Order order = orderMapper.orderDtoToOrder(orderDto);
 
         orderRepository.save(order);
 

@@ -1,11 +1,11 @@
 package it.shine.gamingverse.services;
 
 import it.shine.gamingverse.dtos.ConsoleDto;
-import it.shine.gamingverse.dtos.ConsoleDto;
-import it.shine.gamingverse.dtos.GameDto;
 import it.shine.gamingverse.entities.Console;
-import it.shine.gamingverse.entities.Console;
-import it.shine.gamingverse.exceptions.ConsoleNotFoundException;
+import it.shine.gamingverse.exceptions.isnull.GameDtoNullException;
+import it.shine.gamingverse.exceptions.listempty.ConsoleListEmptyException;
+import it.shine.gamingverse.exceptions.isnull.ConsoleDtoNullException;
+import it.shine.gamingverse.exceptions.notfound.ConsoleNotFoundException;
 import it.shine.gamingverse.mappers.ConsoleMapper;
 import it.shine.gamingverse.repositories.ConsolePhotoRepository;
 import it.shine.gamingverse.repositories.ConsoleRepository;
@@ -14,6 +14,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,11 @@ public class ConsoleServiceImpl implements ConsoleService {
     private Validator validator;
 
     @Override
-    public ConsoleDto addConsole(ConsoleDto consoleDto) {
+    public ConsoleDto addConsole(ConsoleDto consoleDto) throws ConsoleDtoNullException {
+        if (ObjectUtils.isEmpty(consoleDto)) {
+            throw new ConsoleDtoNullException();
+        }
+
         Set<ConstraintViolation<ConsoleDto>> violations = validator.validate(consoleDto);
 
         if (!violations.isEmpty()) {
@@ -57,19 +62,27 @@ public class ConsoleServiceImpl implements ConsoleService {
         return consoleMapper.consoleToConsoleDto(console, consolePhotoRepository);
     }
 
-    public List<ConsoleDto> getAllConsoles() {
-        List<ConsoleDto> consoles = new ArrayList<>();
+    @Override
+    public List<ConsoleDto> getAllConsoles() throws ConsoleListEmptyException {
+        List<Console> consoles = consoleRepository.findAll();
 
-        for (Console console : consoleRepository.findAll()) {
-            consoles.add(consoleMapper.consoleToConsoleDto(console, consolePhotoRepository));
+        if (consoles.isEmpty()) {
+            throw new ConsoleListEmptyException();
         }
 
-        return consoles;
+        List<ConsoleDto> consolesDto = new ArrayList<>();
+
+        for (Console console : consoles) {
+            consolesDto.add(consoleMapper.consoleToConsoleDto(console, consolePhotoRepository)); // TODO da rivedere
+        }
+
+        return consolesDto;
     }
 
-    public ConsoleDto updateConsole(Integer id, ConsoleDto consoleDto) throws Exception {
-        Console console = consoleRepository.findById(id)
-                .orElseThrow(ConsoleNotFoundException::new);
+    public ConsoleDto updateConsole(Integer id, ConsoleDto consoleDto) throws ConsoleDtoNullException {
+        if (ObjectUtils.isEmpty(consoleDto)) {
+            throw new ConsoleDtoNullException();
+        }
 
         Set<ConstraintViolation<ConsoleDto>> violations = validator.validate(consoleDto);
 
@@ -77,18 +90,15 @@ public class ConsoleServiceImpl implements ConsoleService {
             throw new ConstraintViolationException(violations);
         }
 
-        console.setConsoleName(consoleDto.getConsoleName());
-        console.setPrice(consoleDto.getPrice());
-        console.setDeveloper(consoleDto.getDeveloper());
-        // TODO released
-        console.setPhotos(consolePhotoRepository.findByConsoleId(consoleDto.getId()));
+        consoleDto.setId(id);
+        Console console = consoleMapper.consoleDtoToConsole(consoleDto, consolePhotoRepository);
 
         consoleRepository.save(console);
 
         return consoleMapper.consoleToConsoleDto(console, consolePhotoRepository);
     }
 
-    public void deleteConsole(Integer id) throws Exception {
+    public void deleteConsole(Integer id) throws ConsoleNotFoundException {
         Console console = consoleRepository.findById(id)
                 .orElseThrow(ConsoleNotFoundException::new);
 

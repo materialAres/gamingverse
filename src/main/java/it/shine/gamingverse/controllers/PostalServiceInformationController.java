@@ -2,7 +2,9 @@ package it.shine.gamingverse.controllers;
 
 import it.shine.gamingverse.controllers.utils.CheckControllerError;
 import it.shine.gamingverse.dtos.PostalServiceInformationDto;
-import it.shine.gamingverse.exceptions.PostalServiceInformationNotFoundException;
+import it.shine.gamingverse.exceptions.isnull.PostalServiceInformationDtoNullException;
+import it.shine.gamingverse.exceptions.listempty.PostalServiceInformationListEmptyException;
+import it.shine.gamingverse.exceptions.notfound.PostalServiceInformationNotFoundException;
 import it.shine.gamingverse.services.PostalServiceInformationServiceImpl;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +43,7 @@ public class PostalServiceInformationController {
         try {
             return ResponseEntity.ok(postalServiceInformationService.getPostalServiceInformationById(id));
         } catch (PostalServiceInformationNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
@@ -50,8 +52,8 @@ public class PostalServiceInformationController {
         try {
             return ResponseEntity.ok(postalServiceInformationService.getAllPostalServiceInformation());
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (PostalServiceInformationListEmptyException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
@@ -65,7 +67,7 @@ public class PostalServiceInformationController {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
 
-        } catch (PostalServiceInformationNotFoundException e) {
+        } catch (PostalServiceInformationDtoNullException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -77,7 +79,8 @@ public class PostalServiceInformationController {
 
             return ResponseEntity.noContent().build();
         } catch (PostalServiceInformationNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
 }
