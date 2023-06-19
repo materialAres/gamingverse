@@ -1,4 +1,4 @@
-package it.shine.gamingverse.mappers.utils;
+package it.shine.gamingverse.services.utils;
 
 import it.shine.gamingverse.dtos.PhotoDto;
 import it.shine.gamingverse.entities.AbstractPhoto;

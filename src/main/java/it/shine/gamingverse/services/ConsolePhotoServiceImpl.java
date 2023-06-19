@@ -1,12 +1,14 @@
 package it.shine.gamingverse.services;
 
 import it.shine.gamingverse.dtos.ConsolePhotoDto;
+import it.shine.gamingverse.entities.Console;
 import it.shine.gamingverse.entities.ConsolePhoto;
 import it.shine.gamingverse.exceptions.listempty.ConsolePhotoListEmptyException;
 import it.shine.gamingverse.exceptions.isnull.ConsolePhotoDtoNullException;
 import it.shine.gamingverse.exceptions.notfound.ConsolePhotoNotFoundException;
 import it.shine.gamingverse.mappers.ConsolePhotoMapper;
 import it.shine.gamingverse.repositories.ConsolePhotoRepository;
+import it.shine.gamingverse.services.utils.PhotoUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.ConstraintViolation;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,17 +45,22 @@ public class ConsolePhotoServiceImpl implements ConsolePhotoService {
             throw new ConsolePhotoDtoNullException();
         }
 
-        ConsolePhoto consolePhoto = consolePhotoMapper.consolePhotoDtoToConsolePhoto(consolePhotoDto, entityManager);
-
         Set<ConstraintViolation<ConsolePhotoDto>> violations = validator.validate(consolePhotoDto);
 
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
 
+        ConsolePhoto consolePhoto = consolePhotoMapper.consolePhotoDtoToConsolePhoto(consolePhotoDto);
+
+        PhotoUtil.setPhoto(consolePhotoDto, consolePhoto);
+
         consolePhotoRepository.save(consolePhoto);
 
-        return consolePhotoDto;
+        ConsolePhotoDto newConsolePhotoDto = consolePhotoMapper.consolePhotoToConsolePhotoDto(consolePhoto);
+        newConsolePhotoDto.setContent(Base64.getEncoder().encodeToString(consolePhoto.getContent()));
+
+        return newConsolePhotoDto;
     }
 
     @Override
@@ -59,7 +68,10 @@ public class ConsolePhotoServiceImpl implements ConsolePhotoService {
         ConsolePhoto consolePhoto = consolePhotoRepository.findById(id)
                 .orElseThrow(ConsolePhotoNotFoundException::new);
 
-        return consolePhotoMapper.consolePhotoToConsolePhotoDto(consolePhoto);
+        ConsolePhotoDto newConsolePhotoDto = consolePhotoMapper.consolePhotoToConsolePhotoDto(consolePhoto);
+        newConsolePhotoDto.setContent(Base64.getEncoder().encodeToString(consolePhoto.getContent()));
+
+        return newConsolePhotoDto;
     }
 
     @Override
@@ -70,10 +82,16 @@ public class ConsolePhotoServiceImpl implements ConsolePhotoService {
             throw new ConsolePhotoListEmptyException();
         }
 
-        return consolePhotos
-                .stream()
-                .map(consolePhotoMapper::consolePhotoToConsolePhotoDto)
-                .collect(Collectors.toList());
+        List<ConsolePhotoDto> consolePhotoDtoList = new ArrayList<>();
+
+        for (ConsolePhoto consolePhoto : consolePhotos) {
+            ConsolePhotoDto newConsolePhotoDto = consolePhotoMapper.consolePhotoToConsolePhotoDto(consolePhoto);
+            newConsolePhotoDto.setContent(Base64.getEncoder().encodeToString(consolePhoto.getContent()));
+
+            consolePhotoDtoList.add(newConsolePhotoDto);
+        }
+
+        return consolePhotoDtoList;
     }
 
     @Override
@@ -89,11 +107,15 @@ public class ConsolePhotoServiceImpl implements ConsolePhotoService {
             throw new ConstraintViolationException(violations);
         }
 
-        ConsolePhoto consolePhoto = consolePhotoMapper.consolePhotoDtoToConsolePhoto(consolePhotoDto, entityManager);
+        ConsolePhoto consolePhoto = consolePhotoMapper.consolePhotoDtoToConsolePhoto(consolePhotoDto);
+        PhotoUtil.setPhoto(consolePhotoDto, consolePhoto);
 
         consolePhotoRepository.save(consolePhoto);
 
-        return consolePhotoMapper.consolePhotoToConsolePhotoDto(consolePhoto);
+        ConsolePhotoDto newConsolePhotoDto = consolePhotoMapper.consolePhotoToConsolePhotoDto(consolePhoto);
+        newConsolePhotoDto.setContent(Base64.getEncoder().encodeToString(consolePhoto.getContent()));
+
+        return newConsolePhotoDto;
     }
 
     @Override

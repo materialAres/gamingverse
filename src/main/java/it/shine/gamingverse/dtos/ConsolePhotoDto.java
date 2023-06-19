@@ -12,13 +12,13 @@ import java.util.Base64;
 public class ConsolePhotoDto extends PhotoDto {
 
     @NotNull
-    private Integer console;
+    private Integer consoleId;
 
     public ConsolePhotoDto(ConsolePhoto photo) {
         this.setId(photo.getId());
         this.setFilename(photo.getFilename());
         this.setContent(Base64.getEncoder().encodeToString(photo.getContent()));
-        this.setConsole(photo.getConsole().getId());
+        this.setConsoleId(photo.getConsole().getId());
     }
 
 }

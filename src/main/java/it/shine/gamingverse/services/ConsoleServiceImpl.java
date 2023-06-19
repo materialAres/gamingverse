@@ -2,9 +2,8 @@ package it.shine.gamingverse.services;
 
 import it.shine.gamingverse.dtos.ConsoleDto;
 import it.shine.gamingverse.entities.Console;
-import it.shine.gamingverse.exceptions.isnull.GameDtoNullException;
-import it.shine.gamingverse.exceptions.listempty.ConsoleListEmptyException;
 import it.shine.gamingverse.exceptions.isnull.ConsoleDtoNullException;
+import it.shine.gamingverse.exceptions.listempty.ConsoleListEmptyException;
 import it.shine.gamingverse.exceptions.notfound.ConsoleNotFoundException;
 import it.shine.gamingverse.mappers.ConsoleMapper;
 import it.shine.gamingverse.repositories.ConsolePhotoRepository;
@@ -47,11 +46,15 @@ public class ConsoleServiceImpl implements ConsoleService {
             throw new ConstraintViolationException(violations);
         }
 
-        Console console = consoleMapper.consoleDtoToConsole(consoleDto, consolePhotoRepository);
+        Console console = consoleMapper.consoleDtoToConsole(consoleDto);
+        console.setPhotos(consolePhotoRepository.findByConsoleId(consoleDto.getId()));
 
         consoleRepository.save(console);
 
-        return consoleMapper.consoleToConsoleDto(console, consolePhotoRepository);
+        ConsoleDto newConsoleDto = consoleMapper.consoleToConsoleDto(console);
+        extractPhotoIdsForDto(console, newConsoleDto, consolePhotoRepository);
+
+        return newConsoleDto;
     }
 
     @Override
@@ -59,7 +62,10 @@ public class ConsoleServiceImpl implements ConsoleService {
         Console console = consoleRepository.findById(id)
                 .orElseThrow(ConsoleNotFoundException::new);
 
-        return consoleMapper.consoleToConsoleDto(console, consolePhotoRepository);
+        ConsoleDto newConsoleDto = consoleMapper.consoleToConsoleDto(console);
+        extractPhotoIdsForDto(console, newConsoleDto, consolePhotoRepository);
+
+        return newConsoleDto;
     }
 
     @Override
@@ -73,7 +79,10 @@ public class ConsoleServiceImpl implements ConsoleService {
         List<ConsoleDto> consolesDto = new ArrayList<>();
 
         for (Console console : consoles) {
-            consolesDto.add(consoleMapper.consoleToConsoleDto(console, consolePhotoRepository)); // TODO da rivedere
+            ConsoleDto newConsoleDto = consoleMapper.consoleToConsoleDto(console);
+            extractPhotoIdsForDto(console, newConsoleDto, consolePhotoRepository);
+
+            consolesDto.add(newConsoleDto);
         }
 
         return consolesDto;
@@ -91,11 +100,16 @@ public class ConsoleServiceImpl implements ConsoleService {
         }
 
         consoleDto.setId(id);
-        Console console = consoleMapper.consoleDtoToConsole(consoleDto, consolePhotoRepository);
+
+        Console console = consoleMapper.consoleDtoToConsole(consoleDto);
+        console.setPhotos(consolePhotoRepository.findByConsoleId(consoleDto.getId()));
 
         consoleRepository.save(console);
 
-        return consoleMapper.consoleToConsoleDto(console, consolePhotoRepository);
+        ConsoleDto newConsoleDto = consoleMapper.consoleToConsoleDto(console);
+        extractPhotoIdsForDto(console, newConsoleDto, consolePhotoRepository);
+
+        return newConsoleDto;
     }
 
     public void deleteConsole(Integer id) throws ConsoleNotFoundException {
@@ -103,6 +117,14 @@ public class ConsoleServiceImpl implements ConsoleService {
                 .orElseThrow(ConsoleNotFoundException::new);
 
         consoleRepository.delete(console);
+    }
+
+    private void extractPhotoIdsForDto(Console console, ConsoleDto consoleDto, ConsolePhotoRepository consolePhotoRepository) {
+        if (console.getPhotos() != null) {
+            consoleDto.setPhotos(consolePhotoRepository.findIdsByConsoleId(console.getId()));
+        } else {
+            consoleDto.setPhotos(null);
+        }
     }
 
 }

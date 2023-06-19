@@ -13,13 +13,13 @@ import java.util.Base64;
 public class GamePhotoDto extends PhotoDto {
 
     @NotNull
-    private Integer game;
+    private Integer gameId;
 
     public GamePhotoDto(GamePhoto photo) {
         this.setId(photo.getId());
         this.setFilename(photo.getFilename());
         this.setContent(Base64.getEncoder().encodeToString(photo.getContent()));
-        this.setGame(photo.getGame().getId());
+        this.setGameId(photo.getGame().getId());
     }
 
 }

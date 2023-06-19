@@ -3,18 +3,15 @@ package it.shine.gamingverse.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Data @NoArgsConstructor @AllArgsConstructor
+@Data
 @DiscriminatorValue("game")
 @Table(name = "games", schema = "public", catalog = "gamingverse")
 public class Game extends Product {

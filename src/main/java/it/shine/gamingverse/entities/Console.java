@@ -19,6 +19,10 @@ import java.util.Objects;
 @DiscriminatorValue("console")
 public class Console extends Product {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     @Basic
     @Column(name = "console_name")
     @NotNull

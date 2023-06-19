@@ -3,7 +3,8 @@ package it.shine.gamingverse.mappers;
 import it.shine.gamingverse.dtos.GamePhotoDto;
 import it.shine.gamingverse.entities.Game;
 import it.shine.gamingverse.entities.GamePhoto;
-import it.shine.gamingverse.mappers.utils.PhotoUtil;
+
+import it.shine.gamingverse.services.utils.PhotoUtil;
 import jakarta.persistence.EntityManager;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
@@ -20,7 +21,7 @@ public interface GamePhotoMapper {
         gamePhotoDto.setId(gamePhoto.getId());
         gamePhotoDto.setFilename(gamePhoto.getFilename());
         gamePhotoDto.setContent(Base64.getEncoder().encodeToString(gamePhoto.getContent()));
-        gamePhotoDto.setGame(gamePhoto.getGame().getId());
+        gamePhotoDto.setGameId(gamePhoto.getGame().getId());
 
         return gamePhotoDto;
     };
@@ -34,7 +35,7 @@ public interface GamePhotoMapper {
 
         PhotoUtil.setPhoto(gamePhotoDto, gamePhoto);
 
-        Game game = entityManager.find(Game.class, gamePhotoDto.getGame());
+        Game game = entityManager.find(Game.class, gamePhotoDto.getGameId());
         gamePhoto.setGame(game);
 
         return gamePhoto;

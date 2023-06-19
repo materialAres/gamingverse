@@ -1,12 +1,9 @@
 package it.shine.gamingverse.services;
 
 import it.shine.gamingverse.dtos.GameDto;
-import it.shine.gamingverse.dtos.GamePhotoDto;
 import it.shine.gamingverse.entities.Game;
-import it.shine.gamingverse.entities.GamePhoto;
-import it.shine.gamingverse.exceptions.isnull.GamePhotoDtoNullException;
-import it.shine.gamingverse.exceptions.listempty.GameListEmptyException;
 import it.shine.gamingverse.exceptions.isnull.GameDtoNullException;
+import it.shine.gamingverse.exceptions.listempty.GameListEmptyException;
 import it.shine.gamingverse.exceptions.notfound.GameNotFoundException;
 import it.shine.gamingverse.mappers.GameMapper;
 import it.shine.gamingverse.repositories.GamePhotoRepository;
@@ -49,18 +46,25 @@ public class GameServiceImpl implements GameService {
             throw new ConstraintViolationException(violations);
         }
 
-        Game game = gameMapper.gameDtoToGame(gameDto, gamePhotoRepository);
+        Game game = gameMapper.gameDtoToGame(gameDto);
+        game.setPhotos(gamePhotoRepository.findByGameId(gameDto.getId()));
 
         gameRepository.save(game);
 
-        return gameMapper.gameToGameDto(game, gamePhotoRepository);
+        GameDto newGameDto = gameMapper.gameToGameDto(game);
+        extractPhotoIdsForDto(game, newGameDto, gamePhotoRepository);
+
+        return newGameDto;
     }
 
     public GameDto getGameById(Integer id) throws GameNotFoundException {
         Game game = gameRepository.findById(id)
                 .orElseThrow(GameNotFoundException::new);
 
-        return gameMapper.gameToGameDto(game, gamePhotoRepository);
+        GameDto newGameDto = gameMapper.gameToGameDto(game);
+        extractPhotoIdsForDto(game, newGameDto, gamePhotoRepository);
+
+        return newGameDto;
     }
 
     @Override
@@ -74,7 +78,10 @@ public class GameServiceImpl implements GameService {
         List<GameDto> gamesDto = new ArrayList<>();
 
         for (Game game : games) {
-            gamesDto.add(gameMapper.gameToGameDto(game, gamePhotoRepository)); // TODO da rivedere
+            GameDto newGameDto = gameMapper.gameToGameDto(game);
+            extractPhotoIdsForDto(game, newGameDto, gamePhotoRepository);
+
+            gamesDto.add(newGameDto);
         }
 
         return gamesDto;
@@ -93,11 +100,16 @@ public class GameServiceImpl implements GameService {
         }
 
         gameDto.setId(id);
-        Game game = gameMapper.gameDtoToGame(gameDto, gamePhotoRepository);
+
+        Game game = gameMapper.gameDtoToGame(gameDto);
+        game.setPhotos(gamePhotoRepository.findByGameId(gameDto.getId()));
 
         gameRepository.save(game);
 
-        return gameMapper.gameToGameDto(game, gamePhotoRepository);
+        GameDto newGameDto = gameMapper.gameToGameDto(game);
+        extractPhotoIdsForDto(game, newGameDto, gamePhotoRepository);
+
+        return newGameDto;
     }
 
     @Override
@@ -110,6 +122,12 @@ public class GameServiceImpl implements GameService {
         gameRepository.delete(game);
     }
 
+    private void extractPhotoIdsForDto(Game game,GameDto gameDto, GamePhotoRepository gamePhotoRepository) {
+        if (game.getPhotos() != null) {
+            gameDto.setPhotos(gamePhotoRepository.findIdsByGameId(game.getId()));
+        } else {
+            gameDto.setPhotos(null);
+        }
+    }
+
 }
-
-
